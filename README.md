@@ -3,9 +3,9 @@
 
 ### Зависимости
 * numpy
-* open3d
-* streamlit
-* plotly
+* [open3d](http://www.open3d.org/docs/release/)
+* [streamlit](https://docs.streamlit.io/en/stable/index.html)
+* [plotly](https://plotly.com/python/)
 
 ### Установка и запуск
 
