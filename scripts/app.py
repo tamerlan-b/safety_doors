@@ -8,8 +8,10 @@ from cloud_processing import CloudProcessor, ClustersProcessor
 
 from visualiztion import CloudVis
 
+st.set_page_config(layout="wide")
+
 st.write("""
-# Point cloud viewer
+# Safety doors
 """)
 
 # Загрузка файла через drag and drop
@@ -38,6 +40,8 @@ if not pcd_file is None:
   points_num = st.sidebar.slider('Number of points', min_value=1, max_value=100, value=6)
   radius = st.sidebar.slider('Radius', min_value=0.05, max_value=1.0, value=0.2)
 
+  # Создаем две колонки
+  left_column, right_column = st.columns(2)
 
   tof_processor = CloudProcessor(pcd)
   # Сжимаем облако
@@ -47,11 +51,14 @@ if not pcd_file is None:
   # Радиальная фильтрация
   tof_processor.radialFiltration(nb_points=points_num, radius=0.2)
 
-  # # Создаем отображение
+  # Создаем отображение исходного облака
+  fig_src = CloudVis.drawGeometry([pcd])
+
+  # Создаем отображение обработанного облака
   fig = CloudVis.drawGeometry([tof_processor.cloud])
 
-
-  # Визуализируем
-  st.plotly_chart(fig)
-
-
+  # Визуализируем слева исходное облако, справа - обработанное
+  left_column.write("### Source cloud")
+  left_column.plotly_chart(fig_src)
+  right_column.write("### Processed cloud")
+  right_column.plotly_chart(fig)
