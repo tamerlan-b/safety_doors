@@ -18,4 +18,8 @@ chmod +x scripts/app.py
 Запуск:  
 ```bash
 streamlit run scripts/app.py
-```
+``` 
+
+Скриншот работы программы:  
+
+![Скриншот работы программы](media/screenshot.png)
