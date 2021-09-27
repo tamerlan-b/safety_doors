@@ -12,7 +12,8 @@
 Установка:  
 ```bash
 git clone https://github.com/tamerlan-b/safety_doors.git
-chmod +x scripts/app.py
+chmod +x scripts/*.py
+pip3 install -r requirements.txt
 ```
 
 Запуск:  
