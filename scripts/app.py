@@ -27,32 +27,34 @@ if not pcd_file is None:
     pcd = o3d.io.read_point_cloud(tp.name)
 
   # Добавляем виджеты для конфигурирования обработки облака точек
-  st.sidebar.write("Downsampling")
-  voxel_size = st.sidebar.slider('Voxel size', min_value=0.03, max_value=1.0, value=0.03)
+  with st.sidebar.expander("Downsampling"):
+    voxel_size = st.slider('Voxel size', min_value=0.03, max_value=1.0, value=0.03)
 
-  st.sidebar.write("Statistical filtration")
-  neighbours_num = st.sidebar.slider('Number of neighbours', min_value=1, max_value=100, value=20)
+  with st.sidebar.expander("Filtration"):
+    st.write("Statistical filtration")
+    neighbours_num = st.slider('Number of neighbours', min_value=1, max_value=100, value=20)
 
-  st.sidebar.write("Radial filtration")
-  points_num = st.sidebar.slider('Number of points', min_value=1, max_value=100, value=15)
-  radius = st.sidebar.slider('Radius', min_value=0.05, max_value=1.0, value=0.2)
+    st.write("Radial filtration")
+    points_num = st.slider('Number of points', min_value=1, max_value=100, value=15)
+    radius = st.slider('Radius', min_value=0.05, max_value=1.0, value=0.2)
+  
+  with st.sidebar.expander("Ground plane segmentation"): 
+    g_distance_threshold = st.slider('Distance threshold', min_value=0.01, max_value=0.75, value=0.04, key="ground")
+    g_ransac_n = st.slider('Ransac n', min_value=1, max_value=50, value=3, key="ground")
+    g_num_iterations = st.slider('Number of iterations', min_value=100, max_value=10000, value=1000, key="ground")
 
-  st.sidebar.write("Ground plane segmentation")
-  g_distance_threshold = st.sidebar.slider('Distance threshold', min_value=0.01, max_value=0.75, value=0.04, key="ground")
-  g_ransac_n = st.sidebar.slider('Ransac n', min_value=1, max_value=50, value=3, key="ground")
-  g_num_iterations = st.sidebar.slider('Number of iterations', min_value=100, max_value=10000, value=1000, key="ground")
 
-  st.sidebar.write("Door plane segmentation")
-  d_distance_threshold = st.sidebar.slider('Distance threshold', min_value=0.001, max_value=0.75, value=0.005, key="door")
-  d_ransac_n = st.sidebar.slider('Ransac n', min_value=1, max_value=50, value=3, key="door")
-  d_num_iterations = st.sidebar.slider('Number of iterations', min_value=100, max_value=10000, value=1000, key="door")
+  with st.sidebar.expander("Door plane segmentation"):
+    d_distance_threshold = st.slider('Distance threshold', min_value=0.001, max_value=0.75, value=0.005, key="door")
+    d_ransac_n = st.slider('Ransac n', min_value=1, max_value=50, value=3, key="door")
+    d_num_iterations = st.slider('Number of iterations', min_value=100, max_value=10000, value=1000, key="door")
 
-  st.sidebar.write("Clusterization")
-  eps = st.sidebar.slider('Epsilon', min_value=0.01, max_value=0.9, value=0.1)
-  min_points = st.sidebar.slider('Minimum number of points', min_value=1, max_value=1000, value=10)
+  with st.sidebar.expander("Clusterization"):
+    eps = st.slider('Epsilon', min_value=0.01, max_value=0.9, value=0.1)
+    min_points = st.slider('Minimum number of points', min_value=1, max_value=1000, value=10)
 
-  st.sidebar.write("Meshes")
-  opacity = st.sidebar.slider('Opacity', min_value=0.0, max_value=1.0, value=0.1)
+  with st.sidebar.expander("Meshes"):
+    opacity = st.slider('Opacity', min_value=0.0, max_value=1.0, value=0.1)
 
 
   # Создаем две колонки
@@ -68,7 +70,6 @@ if not pcd_file is None:
   tof_processor.statisticalFiltration(nb_neighbors=neighbours_num, std_ratio=0.01)
   # Радиальная фильтрация
   tof_processor.radialFiltration(nb_points=points_num, radius=radius)
-
   # Удаляем наибольшую плоскость
   tof_processor.removePlane(distance_threshold=g_distance_threshold, ransac_n=g_ransac_n, num_iterations=g_num_iterations)
   # Находим следующую наибольшую плоскость (предположительно дверь)
@@ -89,14 +90,8 @@ if not pcd_file is None:
   door_mesh = CloudVis.createMeshFromBB(door_bb)
   # Вычисляем количество пересечений объектов с порталом двери
   intersections = [mesh.is_intersecting(door_mesh) for mesh in clusters_meshes]
-  # Выводим массив пересечений с порталом
-  # if verbose:
-  #   print(intersections)
   # Отображаем кластеры и портал двери
   fig = CloudVis.drawGeometry(clusters_meshes + [door_mesh])
-
-  # Создаем отображение обработанного облака
-  # fig = CloudVis.drawGeometry([tof_processor.cloud])
 
   # Визуализируем слева исходное облако, справа - обработанное
   left_column.write("### Source cloud")
