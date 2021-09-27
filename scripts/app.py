@@ -14,20 +14,17 @@ st.write("""
 # Safety doors
 """)
 
+
 # Загрузка файла через drag and drop
 pcd_file = st.file_uploader('Load point cloud in pcd format',type=['pcd'], accept_multiple_files=False)
 
+# Облако точек
+pcd = None
+# Загружаем облако точек из временного файла
 if not pcd_file is None:
-
-  # Создаем временный файл облака точек
-  tp = tempfile.NamedTemporaryFile(suffix=".pcd")
-  # Записываем байты во временный файл
-  tp.write(pcd_file.getvalue())
-  # Открываем облако
-  pcd = o3d.io.read_point_cloud(tp.name)
-
-  # Закрываем временный файл
-  tp.close()
+  with tempfile.NamedTemporaryFile(suffix=".pcd") as tp:
+    tp.write(pcd_file.getvalue())
+    pcd = o3d.io.read_point_cloud(tp.name)
 
   # Добавляем виджеты для конфигурирования обработки облака точек
   st.sidebar.write("Downsampling")
@@ -43,6 +40,9 @@ if not pcd_file is None:
   # Создаем две колонки
   left_column, right_column = st.columns(2)
 
+  # Создаем отображение исходного облака
+  fig_src = CloudVis.drawGeometry([pcd])
+
   tof_processor = CloudProcessor(pcd)
   # Сжимаем облако
   tof_processor.downsample(voxel_size=voxel_size)
@@ -50,9 +50,6 @@ if not pcd_file is None:
   tof_processor.statisticalFiltration(nb_neighbors=neighbours_num, std_ratio=0.01)
   # Радиальная фильтрация
   tof_processor.radialFiltration(nb_points=points_num, radius=0.2)
-
-  # Создаем отображение исходного облака
-  fig_src = CloudVis.drawGeometry([pcd])
 
   # Создаем отображение обработанного облака
   fig = CloudVis.drawGeometry([tof_processor.cloud])
