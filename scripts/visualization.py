@@ -20,13 +20,20 @@ class CloudVis:
         return hull
 
     @staticmethod
-    def createMeshFromBB(bb):
-        # Создаем mesh из обрамляющего прямоугольника
-        bbcloud = o3d.geometry.PointCloud()
-        bbcloud.points = bb.get_box_points()
-        bb.color = bb.color
-        hull, _ = bbcloud.compute_convex_hull()
-        return hull
+    def createMeshData(mesh, opacity=0.2):
+        verts = np.asarray(mesh.vertices)
+        triangs = np.asarray(mesh.triangles)
+
+        mdata = go.Mesh3d(
+                x=verts[:,0],
+                y=verts[:,1],
+                z=verts[:,2],
+                i = triangs[:,0],
+                j = triangs[:,1],
+                k = triangs[:,2],
+                opacity=opacity,
+            )
+        return mdata
 
     @staticmethod
     def createScatter3dData(pcd):
